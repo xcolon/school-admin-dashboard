@@ -136,7 +136,8 @@ public class StudentsController : ControllerBase
         _context.Students.Add(student);
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Student created: {StudentId}", student.StudentId);
+        var sanitizedStudentId = student.StudentId.Replace('\n', ' ').Replace('\r', ' ');
+        _logger.LogInformation("Student created: {StudentId}", sanitizedStudentId);
 
         var studentDto = new StudentDto
         {
@@ -209,7 +210,8 @@ public class StudentsController : ControllerBase
 
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Student updated: {StudentId}", student.StudentId);
+        var sanitizedStudentId = student.StudentId.Replace('\n', ' ').Replace('\r', ' ');
+        _logger.LogInformation("Student updated: {StudentId}", sanitizedStudentId);
 
         return NoContent();
     }
@@ -232,7 +234,8 @@ public class StudentsController : ControllerBase
         _context.Students.Remove(student);
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Student deleted: {StudentId}", student.StudentId);
+        var sanitizedStudentId = student.StudentId.Replace('\n', ' ').Replace('\r', ' ');
+        _logger.LogInformation("Student deleted: {StudentId}", sanitizedStudentId);
 
         return NoContent();
     }

@@ -126,7 +126,8 @@ public class TeachersController : ControllerBase
         _context.Teachers.Add(teacher);
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Teacher created: {EmployeeId}", teacher.EmployeeId);
+        var sanitizedEmployeeId = teacher.EmployeeId.Replace('\n', ' ').Replace('\r', ' ');
+        _logger.LogInformation("Teacher created: {EmployeeId}", sanitizedEmployeeId);
 
         return CreatedAtAction(nameof(GetTeacher), new { id = teacher.Id }, new
         {
@@ -161,7 +162,8 @@ public class TeachersController : ControllerBase
         _context.Teachers.Remove(teacher);
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Teacher deleted: {EmployeeId}", teacher.EmployeeId);
+        var sanitizedEmployeeId = teacher.EmployeeId.Replace('\n', ' ').Replace('\r', ' ');
+        _logger.LogInformation("Teacher deleted: {EmployeeId}", sanitizedEmployeeId);
 
         return NoContent();
     }

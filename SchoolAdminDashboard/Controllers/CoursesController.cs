@@ -139,7 +139,8 @@ public class CoursesController : ControllerBase
         _context.Courses.Add(course);
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Course created: {CourseCode}", course.CourseCode);
+        var sanitizedCourseCode = course.CourseCode.Replace('\n', ' ').Replace('\r', ' ');
+        _logger.LogInformation("Course created: {CourseCode}", sanitizedCourseCode);
 
         return CreatedAtAction(nameof(GetCourse), new { id = course.Id }, new
         {
@@ -175,7 +176,8 @@ public class CoursesController : ControllerBase
         _context.Courses.Remove(course);
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Course deleted: {CourseCode}", course.CourseCode);
+        var sanitizedCourseCode = course.CourseCode.Replace('\n', ' ').Replace('\r', ' ');
+        _logger.LogInformation("Course deleted: {CourseCode}", sanitizedCourseCode);
 
         return NoContent();
     }

@@ -81,7 +81,8 @@ public class AuthController : ControllerBase
 
         var token = _tokenService.GenerateToken(user, registerDto.Role);
 
-        _logger.LogInformation("User {Email} registered successfully with role {Role}", user.Email, registerDto.Role);
+        // Log using user ID instead of email to avoid exposing PII in logs
+        _logger.LogInformation("User {UserId} registered successfully with role {Role}", user.Id, registerDto.Role);
 
         return Ok(new AuthResponseDto
         {
@@ -115,11 +116,13 @@ public class AuthController : ControllerBase
         {
             if (result.IsLockedOut)
             {
-                _logger.LogWarning("User {Email} account locked out", loginDto.Email);
+                // Log user ID instead of email for security/privacy
+                _logger.LogWarning("User account {UserId} locked out", user.Id);
                 return Unauthorized(new { message = "Account locked due to multiple failed login attempts" });
             }
 
-            _logger.LogWarning("Failed login attempt for {Email}", loginDto.Email);
+            // Log failed attempt with user ID, not email
+            _logger.LogWarning("Failed login attempt for user {UserId}", user.Id);
             return Unauthorized(new { message = "Invalid credentials" });
         }
 
