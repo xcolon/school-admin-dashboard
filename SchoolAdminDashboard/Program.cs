@@ -11,8 +11,17 @@ using SchoolAdminDashboard.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Database
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+if (builder.Environment.EnvironmentName == "Testing")
+{
+    var dbName = builder.Configuration["TestDbName"] ?? "TestDb_" + Guid.NewGuid().ToString();
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseInMemoryDatabase(dbName));
+}
+else
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+}
 
 // Configure Identity with security settings
 builder.Services.AddIdentity<User, IdentityRole>(options =>
@@ -131,17 +140,20 @@ app.Use(async (context, next) =>
     await next();
 });
 
-// Seed roles
-using (var scope = app.Services.CreateScope())
+// Seed roles (skip in testing environment)
+if (app.Environment.EnvironmentName != "Testing")
 {
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var roles = new[] { "Admin", "Teacher", "Student" };
-    
-    foreach (var role in roles)
+    using (var scope = app.Services.CreateScope())
     {
-        if (!await roleManager.RoleExistsAsync(role))
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var roles = new[] { "Admin", "Teacher", "Student" };
+        
+        foreach (var role in roles)
         {
-            await roleManager.CreateAsync(new IdentityRole(role));
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                await roleManager.CreateAsync(new IdentityRole(role));
+            }
         }
     }
 }
@@ -165,3 +177,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Make Program class accessible for testing
+public partial class Program { }
